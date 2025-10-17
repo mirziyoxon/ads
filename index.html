@@ -143,7 +143,7 @@
     <button onclick="checkAndGenerate()">Generate Code</button>
     <div class="status" id="status"></div>
     <div class="result" id="result">
-      <button class="copy" onclick="copyCode()">??</button>
+      <button class="copy" onclick="copyCode()">📋</button>
       <code id="codeText"></code>
     </div>
   </div>
@@ -151,12 +151,12 @@
   <div class="toast" id="toast">Copied!</div>
 
   <script>
-    // Check if user is blocked
+    // === Check block status ===
     const blockedUntil = localStorage.getItem("blockedUntil");
     if (blockedUntil && Date.now() < blockedUntil) {
       document.body.innerHTML = `
         <div class="blocked">
-          <h2>Access Blocked ??</h2>
+          <h2>Access Blocked 🚫</h2>
           <p>You used an insecure (http://) link.<br>Please try again after 24 hours.</p>
         </div>`;
     }
@@ -172,14 +172,14 @@
       status.textContent = "Checking...";
       status.className = "status";
 
-      // 1?? Basic validation
+      // 1️⃣ Validate
       if (!urlInput.startsWith("https://")) {
         if (urlInput.startsWith("http://")) {
-          const blockUntil = Date.now() + 24 * 60 * 60 * 1000; // 1 day
+          const blockUntil = Date.now() + 24 * 60 * 60 * 1000;
           localStorage.setItem("blockedUntil", blockUntil);
           document.body.innerHTML = `
             <div class="blocked">
-              <h2>Access Blocked ??</h2>
+              <h2>Access Blocked 🚫</h2>
               <p>You used an insecure (http://) link.<br>Please try again after 24 hours.</p>
             </div>`;
         } else {
@@ -195,26 +195,30 @@
         return;
       }
 
-      // 2?? Check if alive
+      // 2️⃣ Check if site is alive
       try {
-        const response = await fetch(urlInput, { method: 'HEAD', mode: 'no-cors' });
-        status.textContent = "Website is alive ?";
-        status.classList.add("ok");
+        const res = await fetch(urlInput, { method: "GET" });
+        if (res.ok) {
+          status.textContent = "Website is alive ✅";
+          status.classList.add("ok");
+        } else {
+          throw new Error();
+        }
 
-        // 3?? Generate code
+        // 3️⃣ Generate code
         const host = urlInput.replace(/^https?:\/\//, '').replace(/\/$/, '');
         const snippet = `<script src="https://unicorner.uz/smartad-loader.js" data-site="${host}" async></script>`;
         codeText.textContent = snippet;
         result.style.display = "block";
-      } catch (err) {
-        status.textContent = "Not found ?";
+      } catch {
+        status.textContent = "Not found ❌";
         status.classList.add("fail");
       }
     }
 
     function copyCode() {
       const txt = document.getElementById('codeText').textContent;
-      navigator.clipboard.writeText(txt).then(() => showToast("Copied ?"));
+      navigator.clipboard.writeText(txt).then(() => showToast("Copied ✅"));
     }
 
     function showToast(msg) {
@@ -226,4 +230,6 @@
   </script>
 </body>
 </html>
+
+
 
